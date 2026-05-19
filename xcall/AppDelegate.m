@@ -98,8 +98,22 @@
 	// Add source callback URL parameters
 	components.queryItems = [components.queryItems arrayByAddingObjectsFromArray: self.class.sourceCallbacks];
 	
-	// Open URL
-	[NSWorkspace.sharedWorkspace openURL:components.URL options:(activateApp ? NSWorkspaceLaunchDefault : NSWorkspaceLaunchWithoutActivation) configuration:@{} error:NULL];
+	// set the config
+    NSWorkspaceOpenConfiguration *configuration = [NSWorkspaceOpenConfiguration configuration];
+    configuration.promptsUserIfNeeded = YES;   // Allows system permissions prompts if needed
+    configuration.addsToRecentItems   = NO;    // Don't clutter the user's "Recent Items"
+    configuration.activates           = NO;   // Bring the target app to the front
+    
+    // Open URL
+    [[NSWorkspace sharedWorkspace] openApplicationAtURL:components.URL
+                                          configuration:configuration
+                                             completionHandler:^(NSRunningApplication * _Nullable app, NSError * _Nullable error) {
+        if (error) {
+            NSLog(@"Failed to open URL: %@", error.localizedDescription);
+        } else {
+//            NSLog(@"Successfully opened URL via modern API.");
+        }
+    }];
 }
 
 + (NSArray<NSURLQueryItem *> *)sourceCallbacks
